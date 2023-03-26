@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gin/controllers"
 	"log"
 	"os"
@@ -25,6 +24,7 @@ func main() {
 	usersRoutes.PUT("/:id", controllers.UpdateUser)
 	usersRoutes.DELETE("/:id", controllers.DeleteUser)
 	usersRoutes.POST("/login", controllers.Login)
+	usersRoutes.POST("/email/:country", controllers.SendEmail)
 
 	authRoutes := router.Group("")
 	authRoutes.Use(controllers.AuthMiddleware())
@@ -36,6 +36,4 @@ func main() {
 	if err := router.Run(":" + port); err != nil {
 		panic(err)
 	}
-
-	fmt.Println("Coba Pull Request dengan Github Action Workflows!")
 }
