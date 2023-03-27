@@ -25,6 +25,7 @@ func main() {
 	usersRoutes.DELETE("/:id", controllers.DeleteUser)
 	usersRoutes.POST("/login", controllers.Login)
 	usersRoutes.POST("/email/:country", controllers.SendEmail)
+	usersRoutes.POST("/cron/:country", controllers.SendEmail)
 
 	authRoutes := router.Group("")
 	authRoutes.Use(controllers.AuthMiddleware())

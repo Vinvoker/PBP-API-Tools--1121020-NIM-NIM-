@@ -6,8 +6,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-co-op/gocron"
 	"github.com/redis/go-redis/v9"
 	"gopkg.in/gomail.v2"
 )
@@ -18,6 +21,20 @@ var rdb = redis.NewClient(&redis.Options{
 	DB:       0,
 })
 var ctx = context.Background()
+
+func ActivateCRON(c *gin.Context) {
+	minutes := c.Param("minutes")
+
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+	}
+	s := gocron.NewScheduler(location)
+	s.Every(minutes).Seconds().Do(func() {
+		SendEmail(c)
+	})
+	s.StartAsync()
+}
 
 func SendEmail(c *gin.Context) {
 	country := c.Param("country")
@@ -49,20 +66,29 @@ func SendEmail(c *gin.Context) {
 
 	env_email := os.Getenv("EMAIL")
 	env_password := os.Getenv("PASSWORD")
+	var wg sync.WaitGroup
+	wg.Add(len(emails))
+	d := gomail.NewDialer("smtp.gmail.com", 587, env_email, env_password)
+
 	for i, v := range names {
-		m := gomail.NewMessage()
-		m.SetHeader("From", "if-21020@students.ithb.ac.id")
-		m.SetHeader("To", emails[i])
-		m.SetHeader("Subject", "Hello!")
-		m.SetBody("text/html", "Hello "+v)
+		go func(i int, v string) {
+			defer wg.Done()
 
-		d := gomail.NewDialer("smtp.gmail.com", 587, env_email, env_password)
+			m := gomail.NewMessage()
+			m.SetHeader("From", "if-21020@students.ithb.ac.id")
+			m.SetHeader("To", emails[i])
+			m.SetHeader("Subject", "Hello!")
+			m.SetBody("text/html", "Hello "+v)
 
-		if err := d.DialAndSend(m); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
+			if err := d.DialAndSend(m); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+		}(i, v)
 	}
+
+	wg.Wait()
+	c.JSON(http.StatusOK, gin.H{"message": "All emails send successfully"})
 }
 
 func UpdateEmailList(c *gin.Context, country string) {
