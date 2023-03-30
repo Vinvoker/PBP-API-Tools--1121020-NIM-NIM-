@@ -18,7 +18,8 @@ func main() {
 
 	port := os.Getenv("ROUTER_PORT")
 
-	router.POST("/email", controllers.ActivateCRON)
+	router.POST("/cron", controllers.ActivateCRON)
+	router.POST("/email", controllers.SendEmail)
 
 	if err := router.Run(":" + port); err != nil {
 		panic(err)
