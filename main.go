@@ -18,21 +18,7 @@ func main() {
 
 	port := os.Getenv("ROUTER_PORT")
 
-	usersRoutes := router.Group("/users")
-	usersRoutes.GET("", controllers.GetUsers)
-	usersRoutes.POST("", controllers.CreateUser)
-	usersRoutes.PUT("/:id", controllers.UpdateUser)
-	usersRoutes.DELETE("/:id", controllers.DeleteUser)
-	usersRoutes.POST("/login", controllers.Login)
-	usersRoutes.POST("/email/:country", controllers.SendEmail)
-	usersRoutes.POST("/cron/:country", controllers.SendEmail)
-
-	authRoutes := router.Group("")
-	authRoutes.Use(controllers.AuthMiddleware())
-	// group untuk mengakses fungsi yang perlu login
-	// dalam hal ini, hanya untuk mengakses fungsi logout
-
-	authRoutes.POST("/users/logout", controllers.Logout)
+	router.POST("/email", controllers.ActivateCRON)
 
 	if err := router.Run(":" + port); err != nil {
 		panic(err)

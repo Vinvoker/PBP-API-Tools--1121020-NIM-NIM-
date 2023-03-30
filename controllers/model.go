@@ -1,19 +1,36 @@
 package controllers
 
-import "github.com/dgrijalva/jwt-go"
-
-type User struct {
-	UserId       int    `json:"id"`
-	UserName     string `json:"name"`
-	UserEmail    string `json:"email"`
-	UserCountry  string `json:"country"`
-	UserType     string `json:"type"`
-	userPassword string
+type Order struct {
+	IDorder        int `json:"id"`
+	WaktuTransaksi int `json:"waktu_transaksi"`
 }
 
-type CustomClaims struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	UserType int    `json:"userType"`
-	jwt.StandardClaims
+type OrderDetails struct {
+	IDorder  int `json:"id_order"`
+	IDproduk int `json:"id_produk"`
+	Quantity int `json:"quantity"`
+}
+
+type Produk struct {
+	IDproduk   int    `json:"id_produk"`
+	NamaProduk string `json:"nama_produk"`
+	Harga      int    `json:"harga"`
+	Gambar     string `json:"gambar"`
+}
+
+type DataOwners struct {
+	IDowner    int    `json:"id_owner"`
+	NamaOwner  string `json:"nama_owner"`
+	EmailOwner string `json:"email"`
+}
+
+type Receiver struct {
+	OwnerName  string `json:"name"`
+	OwnerEmail string `json:"email"`
+}
+
+type Message struct {
+	ProductName string
+	Quantity    int
+	Price       int
 }
